@@ -2,37 +2,34 @@
 
 import { useSocketAlerts, Intensity } from "@/hooks/socket";
 
-// Mapping from SVG path IDs (silueta.svg) → WebSocket alert part keys
+// SVG path ID (silueta.svg) → backend JSON key sent by Raspberry Pi
+// Payload: {armL1, armL2, armR1, armR2, footL, footR, chest, back, alert, distancia}
+// Values are PWM 0-255; converted to Intensity in hooks/socket.ts
 const SVG_TO_ALERT: Record<string, string> = {
-  cabeza_mike: "head",
-  hombro_izq: "arm_upper_left",
-  hombro_der: "arm_upper_right",
-  torso_izq: "torso_left",
-  torso_der: "torso_right",
-  antebrazo_izq: "arm_lower_left",
-  antebrazo_der: "arm_lower_right",
-  mano_izq: "hand_left",
-  mano_der: "hand_right",
-  pierna_izq: "leg_left",
-  pierna_der: "leg_right",
-  pie_izq: "foot_left",
-  pie_der: "foot_right",
+  hombro_izq: "armL1",  // upper-left arm / shoulder
+  antebrazo_izq: "armL2",  // lower-left arm / forearm
+  mano_izq: "armL2",  // left hand  (shares armL2 sensor)
+  hombro_der: "armR1",  // upper-right arm / shoulder
+  antebrazo_der: "armR2",  // lower-right arm / forearm
+  mano_der: "armR2",  // right hand (shares armR2 sensor)
+  pierna_izq: "footL",  // left leg
+  pie_izq: "footL",  // left foot  (same sensor)
+  pierna_der: "footR",  // right leg
+  pie_der: "footR",  // right foot (same sensor)
+  torso_izq: "chest",  // front torso — left half
+  torso_der: "chest",  // front torso — right half
+  cabeza_mike: "back",   // head maps to back sensor
 };
 
 const PART_LABELS: Record<string, string> = {
-  head: "Cabeza",
-  arm_upper_left: "Hombro izq.",
-  arm_upper_right: "Hombro der.",
-  torso_left: "Torso izq.",
-  torso_right: "Torso der.",
-  arm_lower_left: "Antebrazo izq.",
-  arm_lower_right: "Antebrazo der.",
-  hand_left: "Mano izq.",
-  hand_right: "Mano der.",
-  leg_left: "Pierna izq.",
-  leg_right: "Pierna der.",
-  foot_left: "Pie izq.",
-  foot_right: "Pie der.",
+  armL1: "Brazo sup. izq.",
+  armL2: "Antebrazo izq.",
+  armR1: "Brazo sup. der.",
+  armR2: "Antebrazo der.",
+  footL: "Pierna / pie izq.",
+  footR: "Pierna / pie der.",
+  chest: "Pecho",
+  back: "Espalda",
 };
 
 const INTENSITY_CONFIG: Record<
@@ -63,12 +60,7 @@ const DEFAULT_FILL = "#1e3a5f";
 const STROKE_COLOR = "#3b82f6";
 
 export default function SecuritySilhouette() {
-  const alerts = useSocketAlerts();
-
-  // Reverse map: alertKey → SVG IDs
-  const alertToSvg = Object.fromEntries(
-    Object.entries(SVG_TO_ALERT).map(([svgId, alertKey]) => [alertKey, svgId])
-  );
+  const { alerts, distancia } = useSocketAlerts();
 
   const getPathStyle = (svgId: string): React.CSSProperties => {
     const alertKey = SVG_TO_ALERT[svgId];
@@ -96,6 +88,7 @@ export default function SecuritySilhouette() {
     };
   };
 
+  // Deduplicate keys so each backend key appears once in the alert panel
   const activeAlerts = Object.entries(alerts);
 
   return (
@@ -387,10 +380,35 @@ export default function SecuritySilhouette() {
           {/* ── Right panel ── */}
           <div className="panel">
 
-            {/* Status */}
+            {/* Status + distance */}
             <div className="status-bar">
               <div className="status-dot" />
               <span>Conectado · escuchando alertas</span>
+            </div>
+
+            {/* ToF sensor distance */}
+            <div style={{
+              background: 'rgba(255,255,255,0.03)',
+              border: '1px solid rgba(255,255,255,0.07)',
+              borderRadius: '0.75rem',
+              padding: '0.75rem 1rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+            }}>
+              <span style={{ color: '#64748b', fontSize: '0.78rem', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+                📡 Distancia frontal
+              </span>
+              <span style={{
+                color: distancia !== null
+                  ? (distancia < 500 ? '#ef4444' : distancia < 1000 ? '#f9f516' : '#75e116')
+                  : '#475569',
+                fontWeight: 700,
+                fontSize: '0.95rem',
+                fontVariantNumeric: 'tabular-nums',
+              }}>
+                {distancia !== null ? `${distancia} mm` : '— mm'}
+              </span>
             </div>
 
             {/* Active alerts */}
