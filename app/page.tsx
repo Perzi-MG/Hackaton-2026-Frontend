@@ -296,7 +296,7 @@ export default function SecuritySilhouette() {
 
       <div className="page-wrapper">
         <div className="header">
-          <h1>🛡️ Monitor de Seguridad</h1>
+          <h1>Monitor de Seguridad</h1>
           <p>Detección de impacto en tiempo real</p>
         </div>
 
@@ -397,7 +397,7 @@ export default function SecuritySilhouette() {
               justifyContent: 'space-between',
             }}>
               <span style={{ color: '#64748b', fontSize: '0.78rem', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
-                📡 Distancia frontal
+                Distancia frontal
               </span>
               <span style={{
                 color: distancia !== null
@@ -416,7 +416,7 @@ export default function SecuritySilhouette() {
               <div className="panel-section-title">Alertas activas</div>
               {activeAlerts.length === 0 ? (
                 <div className="alert-empty">
-                  <div style={{ fontSize: "1.8rem" }}>✅</div>
+                  <div style={{ fontSize: "1.8rem" }}></div>
                   <p style={{ marginTop: "0.5rem" }}>Sin alertas — todo normal</p>
                 </div>
               ) : (
