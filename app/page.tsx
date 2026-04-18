@@ -439,38 +439,6 @@ export default function SecuritySilhouette() {
                 </div>
               )}
             </div>
-
-            {/* Legend */}
-            <div>
-              <div className="panel-section-title">Leyenda</div>
-              <div className="legend">
-                {(["low", "medium", "high"] as Intensity[]).map((lvl) => {
-                  const cfg = INTENSITY_CONFIG[lvl];
-                  return (
-                    <div key={lvl} className="legend-item">
-                      <div
-                        className="legend-dot"
-                        style={{
-                          background: cfg.fill,
-                          boxShadow: `0 0 6px ${cfg.fill}88`,
-                        }}
-                      />
-                      <span className="legend-label">
-                        {cfg.label} intensidad
-                      </span>
-                    </div>
-                  );
-                })}
-                <div className="legend-item">
-                  <div
-                    className="legend-dot"
-                    style={{ background: DEFAULT_FILL, border: `1px solid ${STROKE_COLOR}` }}
-                  />
-                  <span className="legend-label">Normal / sin alerta</span>
-                </div>
-              </div>
-            </div>
-
           </div>
         </div>
       </div>
